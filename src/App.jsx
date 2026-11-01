@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import OpeningScene from './components/OpeningScene.jsx';
+import StartGate from './components/StartGate.jsx';
 import Anniversary from './pages/Anniversary.jsx';
 import MusicPlayer from './components/MusicPlayer.jsx';
 import CursorGlow from './components/CursorGlow.jsx';
@@ -10,7 +11,7 @@ import { lockScroll, startSmoothScroll, unlockScroll } from './lib/scroll.js';
 const skipIntro = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('skip');
 
 export default function App() {
-  const [stage, setStage] = useState(skipIntro ? 'main' : 'opening');
+  const [stage, setStage] = useState(skipIntro ? 'main' : 'gate'); // gate → opening → main
 
   useEffect(() => {
     startSmoothScroll();
@@ -18,7 +19,7 @@ export default function App() {
 
   useEffect(() => {
     // The opening is a fixed, full-screen experience: hold the page still until it is done.
-    if (stage !== 'opening') {
+    if (stage === 'main') {
       window.scrollTo(0, 0);
       return undefined;
     }
@@ -29,9 +30,9 @@ export default function App() {
   return (
     <MotionConfig reducedMotion="user" transition={{ ease: [0.23, 1, 0.32, 1] }}>
       <AnimatePresence mode="wait">
-        {stage === 'opening' ? (
-          <OpeningScene key="opening" onComplete={() => setStage('main')} />
-        ) : (
+        {stage === 'gate' && <StartGate key="gate" onStart={() => setStage('opening')} />}
+        {stage === 'opening' && <OpeningScene key="opening" onComplete={() => setStage('main')} />}
+        {stage === 'main' && (
           <motion.div key="main" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1.2 }}>
             <Anniversary />
           </motion.div>

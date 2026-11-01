@@ -29,7 +29,7 @@ export default function MusicPlayer() {
       a.volume = 0;
       const start = performance.now();
       const step = (now) => {
-        const t = Math.min(1, (now - start) / 2500);
+        const t = Math.min(1, Math.max(0, (now - start) / 2500));
         a.volume = t;
         if (t < 1 && !a.paused) requestAnimationFrame(step);
       };
@@ -52,11 +52,26 @@ export default function MusicPlayer() {
         .catch(() => {});
     }
 
+    // the "Tap to begin" screen asks for the song directly, inside her tap
+    const onStartTap = () => {
+      if (userPaused.current || !a.paused) return;
+      a.play()
+        .then(() => {
+          fadeIn();
+          remove();
+        })
+        .catch(() => {});
+    };
+    window.addEventListener('dilmi:play', onStartTap);
+
     a.play()
       .then(fadeIn)
       .catch(() => events.forEach((e) => window.addEventListener(e, onGesture, true)));
 
-    return remove;
+    return () => {
+      remove();
+      window.removeEventListener('dilmi:play', onStartTap);
+    };
   }, []);
 
   useEffect(() => {

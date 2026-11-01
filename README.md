@@ -6,6 +6,7 @@ Built with React, Vite, Framer Motion and Lucide icons. No backend, no paid APIs
 
 ## The experience
 
+0. **Tap to begin**: a short first screen. Browsers only allow sound after a tap, so this tap is what starts the song together with the opening.
 1. **A world made for you**: a midnight-purple sky with gold dust, stars and drifting petals. The lines appear one by one, ending with *Dilmi*.
 2. **The envelope**: an ivory envelope with gold borders and a purple wax seal pressed with *S&D*. Tap it, and the seal cracks, the flap opens to show a lilac lining, and the letter slides out.
 3. **The letter**: an ivory page unfolds and the words are written in line by line.
@@ -19,7 +20,7 @@ Built with React, Vite, Framer Motion and Lucide icons. No backend, no paid APIs
    - **What you mean to me**: the words light up one by one as she reads.
    - **The full letter**: each paragraph is written in, a gold line tracks her reading, and the signature draws itself.
    - **Final surprise**: the *One Last Hug?* button.
-6. **Music**: the player in the bottom-left corner never starts on its own. By default it plays an original music-box lullaby, synthesised live in the browser, so there are no copyright issues.
+6. **Music**: *Sriyawe* by Krishan Karunarathna starts with the first tap and fades in. She can pause it from the player in the bottom-left corner. Without a track in `src/assets/music/`, an original music-box tune plays instead.
 
 ## Run it locally
 
