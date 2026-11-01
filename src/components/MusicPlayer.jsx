@@ -8,6 +8,8 @@ const tracks = Object.values(
   import.meta.glob('../assets/music/*.{mp3,m4a,ogg,wav}', { eager: true, query: '?url', import: 'default' }),
 );
 const trackUrl = tracks[0] || null;
+// Shown under the play button when a track is used.
+const TRACK_LABEL = 'Sriyawe · Krishan Karunarathna';
 
 export default function MusicPlayer() {
   const [playing, setPlaying] = useState(false);
@@ -76,7 +78,7 @@ export default function MusicPlayer() {
           <Music2 size={13} strokeWidth={1.8} aria-hidden="true" />
           {playing ? 'Now playing' : 'Play our song'}
         </span>
-        <span className="player__sub">{trackUrl ? 'Instrumental' : 'A little music box, for you'}</span>
+        <span className="player__sub">{trackUrl ? TRACK_LABEL : 'A little music box, for you'}</span>
         <span className="player__track" aria-hidden="true">
           <span className="player__fill" style={{ transform: `scaleX(${progress})` }} />
         </span>
