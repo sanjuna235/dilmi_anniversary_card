@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Music2, Pause, Play } from 'lucide-react';
 import { createMusicBox } from './musicBox.js';
 
-// Drop an instrumental track (mp3 / m4a / ogg) into src/assets/music/ and it is used instead.
+// Drop a track (mp3 / m4a / ogg) into src/assets/music/ and it is used instead of the music box.
 const tracks = Object.values(
   import.meta.glob('../assets/music/*.{mp3,m4a,ogg,wav}', { eager: true, query: '?url', import: 'default' }),
 );
@@ -16,6 +16,48 @@ export default function MusicPlayer() {
   const [progress, setProgress] = useState(0);
   const audioRef = useRef(null);
   const boxRef = useRef(null);
+  const userPaused = useRef(false);
+
+  // Start the song as soon as the page loads. Most browsers block sound until the
+  // visitor has touched the page, so if that happens the song starts on her first
+  // tap, click or key press instead (unless she has paused it herself).
+  useEffect(() => {
+    const a = audioRef.current;
+    if (!trackUrl || !a) return undefined;
+
+    const fadeIn = () => {
+      a.volume = 0;
+      const start = performance.now();
+      const step = (now) => {
+        const t = Math.min(1, (now - start) / 2500);
+        a.volume = t;
+        if (t < 1 && !a.paused) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    const events = ['pointerdown', 'keydown', 'touchend'];
+    const remove = () => events.forEach((e) => window.removeEventListener(e, onGesture, true));
+    function onGesture(e) {
+      // a tap on the player itself is handled by its own button
+      if (e.target.closest?.('.player') || userPaused.current || !a.paused) {
+        remove();
+        return;
+      }
+      a.play()
+        .then(() => {
+          fadeIn();
+          remove();
+        })
+        .catch(() => {});
+    }
+
+    a.play()
+      .then(fadeIn)
+      .catch(() => events.forEach((e) => window.addEventListener(e, onGesture, true)));
+
+    return remove;
+  }, []);
 
   useEffect(() => {
     if (!playing) return undefined;
@@ -37,11 +79,12 @@ export default function MusicPlayer() {
     if (trackUrl) {
       const a = audioRef.current;
       if (a.paused) {
+        userPaused.current = false;
+        a.volume = 1;
         await a.play().catch(() => {});
-        setPlaying(!a.paused);
       } else {
+        userPaused.current = true;
         a.pause();
-        setPlaying(false);
       }
       return;
     }
@@ -63,7 +106,9 @@ export default function MusicPlayer() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 1, delay: 1.2 }}
     >
-      {trackUrl && <audio ref={audioRef} src={trackUrl} loop preload="none" />}
+      {trackUrl && (
+        <audio ref={audioRef} src={trackUrl} loop preload="auto" onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} />
+      )}
       <button
         type="button"
         className="player__btn"
